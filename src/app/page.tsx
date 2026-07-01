@@ -31,19 +31,19 @@ export default function Home() {
               </Button>
             </div>
           </nav>
-          <div className="max-w-3xl pb-10 text-white">
+          <div className="max-w-3xl pb-10 text-foreground">
             <Badge className="mb-4 bg-white text-primary">The Healthy Way</Badge>
-            <h1 className="brand-serif text-5xl font-semibold text-white md:text-7xl">
+            <h1 className="brand-serif text-5xl font-semibold text-foreground md:text-7xl">
               Healthy food, fitness, and accountability in one calm place.
             </h1>
-            <p className="mt-5 max-w-2xl text-lg text-white/90">
+            <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
               A coaching app for clients to follow their plan, message their coach, join live calls, and build a healthier relationship with food.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg">
                 <Link href="/auth?tab=signup">Create Account</Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button asChild size="lg" variant="outline" className="bg-white/70 text-foreground">
                 <Link href="/auth">I Already Have Access</Link>
               </Button>
             </div>
