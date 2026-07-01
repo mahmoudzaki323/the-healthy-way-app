@@ -81,7 +81,9 @@ done
 cat > "${TMPDIR_PG}/auth-smoke.sql" <<'SQL'
 insert into auth.users (id, email) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'coach@example.com'),
-  ('bbbbbbbb-0000-0000-0000-000000000001', 'client@example.com');
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'client@example.com'),
+  ('cccccccc-0000-0000-0000-000000000001', 'open-client@example.com'),
+  ('dddddddd-0000-0000-0000-000000000001', 'attacker@example.com');
 
 insert into public.invitations (code, email, role, expires_at)
 values ('HW-COACH-SMOKE', 'coach@example.com', 'coach', now() + interval '30 days');
@@ -104,6 +106,37 @@ select set_config('request.jwt.claim.sub', 'bbbbbbbb-0000-0000-0000-000000000001
 select set_config('request.jwt.claims', '{"email":"client@example.com"}', false);
 select (public.accept_invitation_profile('Smoke Client', 'HW-CLIENT-SMOKE')).role;
 
+select set_config('request.jwt.claim.sub', 'cccccccc-0000-0000-0000-000000000001', false);
+select set_config('request.jwt.claims', '{"email":"open-client@example.com"}', false);
+select (public.create_client_profile('Open Client')).role;
+
+select set_config('request.jwt.claim.sub', 'dddddddd-0000-0000-0000-000000000001', false);
+select set_config('request.jwt.claims', '{"email":"attacker@example.com"}', false);
+
+do $$
+begin
+  begin
+    insert into public.profiles (id, email, full_name, role)
+    values (
+      'dddddddd-0000-0000-0000-000000000001',
+      'attacker@example.com',
+      'Role Attacker',
+      'admin'
+    );
+
+    raise exception 'Privileged self-assignment unexpectedly succeeded.';
+  exception
+    when others then
+      if sqlerrm = 'Privileged self-assignment unexpectedly succeeded.' then
+        raise;
+      end if;
+
+      if sqlerrm <> 'Profile role cannot be self-assigned.' then
+        raise exception 'Unexpected privilege safety failure: %', sqlerrm;
+      end if;
+  end;
+end $$;
+
 do $$
 declare
   v_profiles integer;
@@ -114,7 +147,8 @@ begin
   from public.profiles
   where id in (
     'aaaaaaaa-0000-0000-0000-000000000001',
-    'bbbbbbbb-0000-0000-0000-000000000001'
+    'bbbbbbbb-0000-0000-0000-000000000001',
+    'cccccccc-0000-0000-0000-000000000001'
   );
 
   select count(*) into v_coach_clients
@@ -127,7 +161,7 @@ begin
   where client_id = 'bbbbbbbb-0000-0000-0000-000000000001'
     and program_id = '10000000-0000-0000-0000-000000000001';
 
-  if v_profiles <> 2 or v_coach_clients <> 1 or v_enrollments <> 1 then
+  if v_profiles <> 3 or v_coach_clients <> 1 or v_enrollments <> 1 then
     raise exception 'Auth smoke failed: profiles %, coach_clients %, enrollments %',
       v_profiles, v_coach_clients, v_enrollments;
   end if;

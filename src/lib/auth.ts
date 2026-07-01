@@ -81,17 +81,19 @@ export async function getCurrentProfile(
   }
 
   const inviteCode = String(user.user_metadata?.invite_code ?? "").trim()
+  const fullName = String(
+    user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? ""
+  )
 
   if (!profile) {
-    const { data: createdProfile, error } = await supabase.rpc(
-      "accept_invitation_profile",
-      {
-        p_full_name: String(
-          user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? ""
-        ),
-        p_invite_code: inviteCode,
-      }
-    )
+    const { data: createdProfile, error } = inviteCode
+      ? await supabase.rpc("accept_invitation_profile", {
+          p_full_name: fullName,
+          p_invite_code: inviteCode,
+        })
+      : await supabase.rpc("create_client_profile", {
+          p_full_name: fullName,
+        })
 
     if (error || !createdProfile) {
       throw new Error(error?.message ?? "Unable to create profile")

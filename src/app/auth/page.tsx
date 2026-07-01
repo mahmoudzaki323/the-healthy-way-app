@@ -1,4 +1,4 @@
-import { Gift, KeyRound, Leaf, Mail } from "lucide-react"
+import { KeyRound, Leaf, Mail } from "lucide-react"
 
 import {
   magicLinkAction,
@@ -120,24 +120,9 @@ export default async function AuthPage({
                 </TabsContent>
                 <TabsContent value="signup" className="mt-6">
                   <form action={signUpAction} className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-name">Name</Label>
-                        <Input id="signup-name" name="fullName" placeholder="Your name" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="invite-code">Invite code</Label>
-                        <div className="relative">
-                          <Gift className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            id="invite-code"
-                            name="inviteCode"
-                            className="pl-9"
-                            placeholder="Invite code"
-                            required
-                          />
-                        </div>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name">Name</Label>
+                      <Input id="signup-name" name="fullName" placeholder="Your name" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>
@@ -157,8 +142,8 @@ export default async function AuthPage({
               <Separator className="my-6" />
               <p className="text-center text-sm text-muted-foreground">
                 New here? Create an account to get routed into onboarding, then
-                your coaching dashboard. Coach admin access is controlled by the
-                coach account role.
+                your coaching dashboard. Coach and admin setup stays limited to
+                approved setup flows.
               </p>
             </CardContent>
           </Card>

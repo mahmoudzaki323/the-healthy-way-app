@@ -180,18 +180,8 @@ export async function signUpAction(formData: FormData) {
   const email = getString(formData, "email")
   const password = getString(formData, "password")
   const fullName = getString(formData, "fullName")
-  const inviteCode = getString(formData, "inviteCode")
 
   const supabase = await createClient()
-  const { error: inviteError } = await supabase.rpc("validate_invitation", {
-    p_email: email,
-    p_invite_code: inviteCode,
-  })
-
-  if (inviteError) {
-    redirect(`/auth?tab=signup&error=${encodeURIComponent(inviteError.message)}`)
-  }
-
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -199,7 +189,7 @@ export async function signUpAction(formData: FormData) {
       emailRedirectTo: `${appUrl}/auth/callback?next=/onboarding`,
       data: {
         full_name: fullName,
-        invite_code: inviteCode,
+        signup_role: "client",
       },
     },
   })
